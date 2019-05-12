@@ -6,7 +6,10 @@ import java.util.Set;
 import org.springframework.context.ApplicationContext;
 
 import com.ctrip.framework.apollo.model.ConfigChangeEvent;
-
+/**
+ * Update the @configurationproperties field value
+ * @author wangbo(wangle_r@163.com)
+ */
 public abstract class AbstractRefreshConfigurationProperties implements RefreshConfigurationProperties{
   /**
    * Update the property values of the object through the bean object
