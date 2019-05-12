@@ -1,5 +1,6 @@
 package com.ctrip.framework.apollo.spring.boot;
 
+import com.ctrip.framework.apollo.ClientConfigConsts;
 import com.ctrip.framework.apollo.Config;
 import com.ctrip.framework.apollo.ConfigService;
 import com.ctrip.framework.apollo.core.ConfigConsts;
@@ -60,8 +61,8 @@ public class ApolloApplicationContextInitializer implements
 
   private static final Logger logger = LoggerFactory.getLogger(ApolloApplicationContextInitializer.class);
   private static final Splitter NAMESPACE_SPLITTER = Splitter.on(",").omitEmptyStrings().trimResults();
-  private static final String[] APOLLO_SYSTEM_PROPERTIES = {"app.id", ConfigConsts.APOLLO_CLUSTER_KEY,
-      "apollo.cacheDir", ConfigConsts.APOLLO_META_KEY};
+  private static final String[] APOLLO_SYSTEM_PROPERTIES = {ConfigConsts.APOLLO_CLUSTER_KEY,
+      ClientConfigConsts.APOLLO_CACHE_DIR, ConfigConsts.APOLLO_META_KEY};
 
   private final ConfigPropertySourceFactory configPropertySourceFactory = SpringInjector
       .getInstance(ConfigPropertySourceFactory.class);
@@ -116,6 +117,11 @@ public class ApolloApplicationContextInitializer implements
     for (String propertyName : APOLLO_SYSTEM_PROPERTIES) {
       fillSystemPropertyFromEnvironment(environment, propertyName);
     }
+    
+    /*
+     */
+    fillSystemPropertyFromEnvironment(environment, ConfigConsts.APOLLO_APP_ID, ConfigConsts.APP_ID);
+    fillSystemPropertyFromEnvironment(environment, ConfigConsts.APOLLO_ENV, ConfigConsts.ENV);
   }
 
   private void fillSystemPropertyFromEnvironment(ConfigurableEnvironment environment, String propertyName) {
@@ -125,6 +131,27 @@ public class ApolloApplicationContextInitializer implements
 
     String propertyValue = environment.getProperty(propertyName);
 
+    if (Strings.isNullOrEmpty(propertyValue)) {
+      return;
+    }
+
+    System.setProperty(propertyName, propertyValue);
+  }
+  
+  private void fillSystemPropertyFromEnvironment(ConfigurableEnvironment environment, String propertyName, String name) {
+    if (System.getProperty(propertyName) != null) {
+      return;
+    }
+    
+    if (System.getProperty(name) != null) {
+      System.setProperty(propertyName, System.getProperty(name));
+    }
+
+    String propertyValue = environment.getProperty(propertyName);
+    
+    if (Strings.isNullOrEmpty(propertyValue)) {
+      propertyValue = environment.getProperty(name);
+    }
     if (Strings.isNullOrEmpty(propertyValue)) {
       return;
     }

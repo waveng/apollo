@@ -61,4 +61,9 @@ public class MockInjector implements Injector {
     classTable.clear();
     delegate = null;
   }
+
+  @Override
+  public int getOrder() {
+    return 1;
+  }
 }

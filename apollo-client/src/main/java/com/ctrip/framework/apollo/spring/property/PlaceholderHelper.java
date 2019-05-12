@@ -1,10 +1,11 @@
 package com.ctrip.framework.apollo.spring.property;
 
-import com.google.common.base.Strings;
-import com.google.common.collect.Sets;
 import java.util.Set;
 import java.util.Stack;
-import org.springframework.beans.factory.BeanFactory;
+
+import com.google.common.base.Strings;
+import com.google.common.collect.Sets;
+
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanExpressionContext;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;

@@ -4,6 +4,7 @@ import com.ctrip.framework.apollo.build.ApolloInjector;
 import com.ctrip.framework.apollo.spring.property.PlaceholderHelper;
 import com.ctrip.framework.apollo.spring.property.SpringValue;
 import com.ctrip.framework.apollo.spring.property.SpringValueRegistry;
+import com.ctrip.framework.apollo.spring.util.ApolloRefreshUtil;
 import com.ctrip.framework.apollo.spring.util.SpringInjector;
 import com.ctrip.framework.apollo.util.ConfigUtil;
 import com.google.common.base.Preconditions;
@@ -41,6 +42,15 @@ public class ApolloJsonValueProcessor extends ApolloProcessor implements BeanFac
   }
 
   @Override
+  public Object postProcessBeforeInitialization(Object bean, String beanName)
+      throws BeansException {
+    if (configUtil.isAutoUpdateInjectedSpringPropertiesEnabled()) {
+      super.postProcessBeforeInitialization(bean, beanName);
+    }
+    return bean;
+  }
+  
+  @Override
   protected void processField(Object bean, String beanName, Field field) {
     ApolloJsonValue apolloJsonValue = AnnotationUtils.getAnnotation(field, ApolloJsonValue.class);
     if (apolloJsonValue == null) {
@@ -61,10 +71,12 @@ public class ApolloJsonValueProcessor extends ApolloProcessor implements BeanFac
         .setField(field, bean, parseJsonValue((String)propertyValue, field.getGenericType()));
     field.setAccessible(accessible);
 
+    boolean isRefresh = ApolloRefreshUtil.hasRefresh(bean.getClass(), field);
+    
     if (configUtil.isAutoUpdateInjectedSpringPropertiesEnabled()) {
       Set<String> keys = placeholderHelper.extractPlaceholderKeys(placeholder);
       for (String key : keys) {
-        SpringValue springValue = new SpringValue(key, placeholder, bean, beanName, field, true);
+        SpringValue springValue = new SpringValue(key, placeholder, bean, beanName, field, true, isRefresh);
         springValueRegistry.register(beanFactory, key, springValue);
         logger.debug("Monitoring {}", springValue);
       }
@@ -96,12 +108,13 @@ public class ApolloJsonValueProcessor extends ApolloProcessor implements BeanFac
     method.setAccessible(true);
     ReflectionUtils.invokeMethod(method, bean, parseJsonValue((String)propertyValue, types[0]));
     method.setAccessible(accessible);
-
+    
+    boolean isRefresh = ApolloRefreshUtil.hasRefresh(bean.getClass(), method);
     if (configUtil.isAutoUpdateInjectedSpringPropertiesEnabled()) {
       Set<String> keys = placeholderHelper.extractPlaceholderKeys(placeHolder);
       for (String key : keys) {
         SpringValue springValue = new SpringValue(key, apolloJsonValue.value(), bean, beanName,
-            method, true);
+            method, true, isRefresh);
         springValueRegistry.register(beanFactory, key, springValue);
         logger.debug("Monitoring {}", springValue);
       }
