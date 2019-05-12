@@ -26,7 +26,7 @@ public abstract class Foundation {
         // Double locking to make sure only one thread initializes ProviderManager.
         synchronized (lock) {
           if (s_manager == null) {
-            s_manager = ServiceBootstrap.loadFirst(ProviderManager.class);
+            s_manager = ServiceBootstrap.loadFirst(ProviderManager.class, ServiceBootstrap.ASC);
           }
         }
       }

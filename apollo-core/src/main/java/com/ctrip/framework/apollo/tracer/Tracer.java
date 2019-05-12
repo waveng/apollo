@@ -28,7 +28,7 @@ public abstract class Tracer {
       if (producerManager == null) {
         synchronized (lock) {
           if (producerManager == null) {
-            producerManager = ServiceBootstrap.loadFirst(MessageProducerManager.class);
+            producerManager = ServiceBootstrap.loadFirst(MessageProducerManager.class, ServiceBootstrap.ASC);
           }
         }
       }

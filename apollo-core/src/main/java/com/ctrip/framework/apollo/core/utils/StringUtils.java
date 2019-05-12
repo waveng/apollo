@@ -368,4 +368,20 @@ public class StringUtils {
 
     return buf.toString();
   }
+  
+  /**
+   * <pre>
+   * StringUtils.normalizeSyctemEnv(null)      ==> null
+   * StringUtils.normalizeSyctemEnv("abc.def.df")  ==> ABC_DEF_DF
+   * </pre>
+   *
+   * @param str
+   * @return
+   */
+  public static String normalizeSyctemEnv(String str) {
+    if (str == null) {
+      return null;
+    }
+    return str.replace(".", "_").toUpperCase();
+  }
 }

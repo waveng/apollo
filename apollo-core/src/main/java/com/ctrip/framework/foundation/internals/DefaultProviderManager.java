@@ -3,13 +3,14 @@ package com.ctrip.framework.foundation.internals;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import com.ctrip.framework.foundation.internals.provider.DefaultApplicationProvider;
-import com.ctrip.framework.foundation.internals.provider.DefaultNetworkProvider;
-import com.ctrip.framework.foundation.internals.provider.DefaultServerProvider;
-import com.ctrip.framework.foundation.spi.ProviderManager;
-import com.ctrip.framework.foundation.spi.provider.Provider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.ctrip.framework.foundation.spi.ProviderManager;
+import com.ctrip.framework.foundation.spi.provider.ApplicationProvider;
+import com.ctrip.framework.foundation.spi.provider.NetworkProvider;
+import com.ctrip.framework.foundation.spi.provider.Provider;
+import com.ctrip.framework.foundation.spi.provider.ServerProvider;
 
 public class DefaultProviderManager implements ProviderManager {
   private static final Logger logger = LoggerFactory.getLogger(DefaultProviderManager.class);
@@ -17,18 +18,22 @@ public class DefaultProviderManager implements ProviderManager {
 
   public DefaultProviderManager() {
     // Load per-application configuration, like app id, from classpath://META-INF/app.properties
-    Provider applicationProvider = new DefaultApplicationProvider();
+    //Provider applicationProvider = new DefaultApplicationProvider();
+    
+    ApplicationProvider  applicationProvider = ServiceBootstrap.loadFirst(ApplicationProvider.class, ServiceBootstrap.ASC);
     applicationProvider.initialize();
     register(applicationProvider);
 
     // Load network parameters
-    Provider networkProvider = new DefaultNetworkProvider();
+    //Provider networkProvider = new DefaultNetworkProvider();
+    NetworkProvider networkProvider = ServiceBootstrap.loadFirst(NetworkProvider.class, ServiceBootstrap.ASC);
     networkProvider.initialize();
     register(networkProvider);
 
     // Load environment (fat, fws, uat, prod ...) and dc, from /opt/settings/server.properties, JVM property and/or OS
     // environment variables.
-    Provider serverProvider = new DefaultServerProvider();
+    //Provider serverProvider = new DefaultServerProvider();
+    ServerProvider serverProvider = ServiceBootstrap.loadFirst(ServerProvider.class, ServiceBootstrap.ASC);
     serverProvider.initialize();
     register(serverProvider);
   }
@@ -74,5 +79,10 @@ public class DefaultProviderManager implements ProviderManager {
     }
     sb.append("(DefaultProviderManager)").append("\n");
     return sb.toString();
+  }
+
+  @Override
+  public int getOrder() {
+    return 0;
   }
 }

@@ -8,12 +8,15 @@ import java.util.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.ctrip.framework.apollo.core.ConfigConsts;
+import com.ctrip.framework.apollo.core.utils.StringUtils;
 import com.ctrip.framework.foundation.internals.Utils;
 import com.ctrip.framework.foundation.internals.io.BOMInputStream;
 import com.ctrip.framework.foundation.spi.provider.ApplicationProvider;
 import com.ctrip.framework.foundation.spi.provider.Provider;
 
 public class DefaultApplicationProvider implements ApplicationProvider {
+  private static final String[] APP_IDS = {ConfigConsts.APOLLO_APP_ID, ConfigConsts.APP_ID};
   private static final Logger logger = LoggerFactory.getLogger(DefaultApplicationProvider.class);
   public static final String APP_PROPERTIES_CLASSPATH = "/META-INF/app.properties";
   private Properties m_appProperties = new Properties();
@@ -63,7 +66,7 @@ public class DefaultApplicationProvider implements ApplicationProvider {
 
   @Override
   public String getProperty(String name, String defaultValue) {
-    if ("app.id".equals(name)) {
+    if (ConfigConsts.APOLLO_APP_ID.equals(name) || ConfigConsts.APP_ID.equals(name)) {
       String val = getAppId();
       return val == null ? defaultValue : val;
     } else {
@@ -78,36 +81,52 @@ public class DefaultApplicationProvider implements ApplicationProvider {
   }
 
   private void initAppId() {
+    /**
+     * support ‘apollo.app.id’ 
+     */
+    for (String app_id : APP_IDS) {
+      if(initAppId(app_id)) {
+        return ;
+      }
+    }
+    m_appId = null;
+    logger.warn("app.id is not available from System Property and {}. It is set to null", APP_PROPERTIES_CLASSPATH);
+  }
+
+  private boolean initAppId(String app_id) {
     // 1. Get app.id from System Property
-    m_appId = System.getProperty("app.id");
+    m_appId = System.getProperty(app_id);
     if (!Utils.isBlank(m_appId)) {
       m_appId = m_appId.trim();
       logger.info("App ID is set to {} by app.id property from System Property", m_appId);
-      return;
+      return true;
     }
-
+ 
     //2. Try to get app id from OS environment variable
-    m_appId = System.getenv("APP_ID");
+    m_appId = System.getenv(StringUtils.normalizeSyctemEnv(app_id));
     if (!Utils.isBlank(m_appId)) {
       m_appId = m_appId.trim();
       logger.info("App ID is set to {} by APP_ID property from OS environment variable", m_appId);
-      return;
+      return true;
     }
-
+ 
     // 3. Try to get app id from app.properties.
-    m_appId = m_appProperties.getProperty("app.id");
+    m_appId = m_appProperties.getProperty(app_id);
     if (!Utils.isBlank(m_appId)) {
       m_appId = m_appId.trim();
       logger.info("App ID is set to {} by app.id property from {}", m_appId, APP_PROPERTIES_CLASSPATH);
-      return;
+      return true;
     }
-
-    m_appId = null;
-    logger.warn("app.id is not available from System Property and {}. It is set to null", APP_PROPERTIES_CLASSPATH);
+    return false;
   }
 
   @Override
   public String toString() {
     return "appId [" + getAppId() + "] properties: " + m_appProperties + " (DefaultApplicationProvider)";
+  }
+
+  @Override
+  public int getOrder() {
+    return 0;
   }
 }

@@ -1,10 +1,20 @@
 package com.ctrip.framework.foundation.internals;
 
-import org.junit.Test;
+import static org.junit.Assert.assertTrue;
 
+import java.util.List;
 import java.util.ServiceConfigurationError;
 
-import static org.junit.Assert.assertTrue;
+import org.junit.Assert;
+import org.junit.Test;
+
+import com.ctrip.framework.apollo.core.spi.MetaServerProvider;
+import com.ctrip.framework.apollo.tracer.spi.MessageProducerManager;
+import com.ctrip.framework.foundation.spi.ProviderManager;
+import com.ctrip.framework.foundation.spi.provider.ApplicationProvider;
+import com.ctrip.framework.foundation.spi.provider.NetworkProvider;
+import com.ctrip.framework.foundation.spi.provider.Provider;
+import com.ctrip.framework.foundation.spi.provider.ServerProvider;
 
 /**
  * @author Jason Song(song_s@ctrip.com)
@@ -36,6 +46,59 @@ public class ServiceBootstrapTest {
     ServiceBootstrap.loadFirst(Interface5.class);
   }
 
+  @Test
+  public void loadAllWithServiceImplSortASC() throws Exception {
+    List<MetaServerProvider> metaServerProviders = ServiceBootstrap.loadAll(MetaServerProvider.class, ServiceBootstrap.ASC);
+    MetaServerProvider lastMetaServerProvider = null;
+    for (MetaServerProvider metaServerProvider : metaServerProviders) {
+      if(lastMetaServerProvider == null) {
+        lastMetaServerProvider  = metaServerProvider;
+        continue;
+      }
+      Assert.assertTrue(lastMetaServerProvider.getOrder() < metaServerProvider.getOrder());
+      
+      lastMetaServerProvider  = metaServerProvider;
+    }
+  }
+  
+  @Test
+  public void loadAllWithServiceImplSortDESC() throws Exception {
+    List<MetaServerProvider> metaServerProviders = ServiceBootstrap.loadAll(MetaServerProvider.class, ServiceBootstrap.DESC);
+    MetaServerProvider lastMetaServerProvider = null;
+    for (MetaServerProvider metaServerProvider : metaServerProviders) {
+      if(lastMetaServerProvider == null) {
+        lastMetaServerProvider  = metaServerProvider;
+        continue;
+      }
+      Assert.assertTrue(lastMetaServerProvider.getOrder() > metaServerProvider.getOrder());
+      
+      lastMetaServerProvider  = metaServerProvider;
+    }
+  }
+  
+  @Test
+  public void loadFirstWithServiceImplSort() throws Exception {
+    Provider applicationProvider = ServiceBootstrap.loadFirst(ApplicationProvider.class, ServiceBootstrap.ASC);
+    
+    Assert.assertTrue(applicationProvider instanceof ApplicationProvider);
+    
+    Provider networkProvider = ServiceBootstrap.loadFirst(NetworkProvider.class, ServiceBootstrap.ASC);
+    
+    Assert.assertTrue(networkProvider instanceof NetworkProvider);
+    
+    Provider serverProvider = ServiceBootstrap.loadFirst(ServerProvider.class, ServiceBootstrap.ASC);
+    
+    Assert.assertTrue(serverProvider instanceof ServerProvider);
+    
+    ProviderManager providerManager = ServiceBootstrap.loadFirst(ProviderManager.class, ServiceBootstrap.ASC);
+    
+    Assert.assertTrue(providerManager instanceof ProviderManager);
+    
+    MessageProducerManager messageProducerManager = ServiceBootstrap.loadFirst(MessageProducerManager.class, ServiceBootstrap.ASC);
+    
+    Assert.assertTrue(messageProducerManager instanceof MessageProducerManager);
+  }
+  
   private interface Interface1 {
   }
 

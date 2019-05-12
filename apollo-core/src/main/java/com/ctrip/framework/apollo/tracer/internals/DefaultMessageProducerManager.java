@@ -24,4 +24,9 @@ public class DefaultMessageProducerManager implements MessageProducerManager {
   public MessageProducer getProducer() {
     return producer;
   }
+
+  @Override
+  public int getOrder() {
+    return 0;
+  }
 }

@@ -81,4 +81,9 @@ public class CatMessageProducer implements MessageProducer {
       throw new IllegalStateException(ex);
     }
   }
+
+  @Override
+  public int getOrder() {
+    return 0;
+  }
 }
