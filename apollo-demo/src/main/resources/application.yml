@@ -4,3 +4,6 @@ apollo:
     # will inject 'application' and 'TEST1.apollo' namespaces in bootstrap phase
     namespaces: application,TEST1.apollo,application.yaml
 apollo.autoRefreshConfigurationProperties: com.ctrip.framework.apollo.demo.spring.springBootDemo.autorefresh
+apollo.app.id: 100004458
+apollo.meta: http://localhost:8080
+apollo.env: dev

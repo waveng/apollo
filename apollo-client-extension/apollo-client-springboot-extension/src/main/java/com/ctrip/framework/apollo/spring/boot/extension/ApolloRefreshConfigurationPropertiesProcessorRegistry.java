@@ -1,7 +1,6 @@
 package com.ctrip.framework.apollo.spring.boot.extension;
 
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
@@ -17,7 +16,7 @@ import org.springframework.core.PriorityOrdered;
  * @author wangbo(wangle_r@163.com)
  */
 public class ApolloRefreshConfigurationPropertiesProcessorRegistry
-    implements BeanFactoryPostProcessor, PriorityOrdered, BeanDefinitionRegistryPostProcessor {
+    implements PriorityOrdered, BeanDefinitionRegistryPostProcessor {
 
   private int                 order                              = Ordered.HIGHEST_PRECEDENCE + 1;
 
