@@ -187,6 +187,9 @@ public abstract class AbstractSpringIntegrationTest {
 
     private boolean isAutoUpdateInjectedSpringProperties;
 
+    public MockConfigUtil() {
+    }
+
     public void setAutoUpdateInjectedSpringProperties(boolean autoUpdateInjectedSpringProperties) {
       isAutoUpdateInjectedSpringProperties = autoUpdateInjectedSpringProperties;
     }

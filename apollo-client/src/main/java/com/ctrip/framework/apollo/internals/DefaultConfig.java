@@ -15,11 +15,13 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.ctrip.framework.apollo.build.ApolloInjector;
 import com.ctrip.framework.apollo.core.utils.ClassLoaderUtil;
 import com.ctrip.framework.apollo.enums.PropertyChangeType;
 import com.ctrip.framework.apollo.model.ConfigChange;
 import com.ctrip.framework.apollo.model.ConfigChangeEvent;
 import com.ctrip.framework.apollo.tracer.Tracer;
+import com.ctrip.framework.apollo.util.ConfigUtil;
 import com.ctrip.framework.apollo.util.ExceptionUtil;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.util.concurrent.RateLimiter;
@@ -35,6 +37,7 @@ public class DefaultConfig extends AbstractConfig implements RepositoryChangeLis
   private final AtomicReference<Properties> m_configProperties;
   private final ConfigRepository m_configRepository;
   private final RateLimiter m_warnLogRateLimiter;
+  private final ConfigUtil configUtil;
 
   private volatile ConfigSourceType m_sourceType = ConfigSourceType.NONE;
 
@@ -50,6 +53,7 @@ public class DefaultConfig extends AbstractConfig implements RepositoryChangeLis
     m_configRepository = configRepository;
     m_configProperties = new AtomicReference<>();
     m_warnLogRateLimiter = RateLimiter.create(0.017); // 1 warning log output per minute
+    configUtil = ApolloInjector.getInstance(ConfigUtil.class);;
     initialize();
   }
 
@@ -128,6 +132,12 @@ public class DefaultConfig extends AbstractConfig implements RepositoryChangeLis
 
   @Override
   public synchronized void onRepositoryChange(String namespace, Properties newProperties) {
+    /*
+     * Do not update memory if automatic update is not enabled
+     */
+    if(!configUtil.isAutoUpdateInjectedSpringPropertiesEnabled()) {
+     return; 
+    }
     if (newProperties.equals(m_configProperties.get())) {
       return;
     }

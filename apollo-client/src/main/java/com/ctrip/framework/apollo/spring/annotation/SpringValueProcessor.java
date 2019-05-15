@@ -1,20 +1,11 @@
 package com.ctrip.framework.apollo.spring.annotation;
 
-import com.ctrip.framework.apollo.build.ApolloInjector;
-import com.ctrip.framework.apollo.spring.property.PlaceholderHelper;
-import com.ctrip.framework.apollo.spring.property.SpringValue;
-import com.ctrip.framework.apollo.spring.property.SpringValueDefinition;
-import com.ctrip.framework.apollo.spring.property.SpringValueDefinitionProcessor;
-import com.ctrip.framework.apollo.spring.property.SpringValueRegistry;
-import com.ctrip.framework.apollo.spring.util.SpringInjector;
-import com.ctrip.framework.apollo.util.ConfigUtil;
-import com.google.common.collect.LinkedListMultimap;
-import com.google.common.collect.Multimap;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Set;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -26,6 +17,18 @@ import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.context.annotation.Bean;
+
+import com.ctrip.framework.apollo.build.ApolloInjector;
+import com.ctrip.framework.apollo.spring.property.PlaceholderHelper;
+import com.ctrip.framework.apollo.spring.property.SpringValue;
+import com.ctrip.framework.apollo.spring.property.SpringValueDefinition;
+import com.ctrip.framework.apollo.spring.property.SpringValueDefinitionProcessor;
+import com.ctrip.framework.apollo.spring.property.SpringValueRegistry;
+import com.ctrip.framework.apollo.spring.util.ApolloRefreshUtil;
+import com.ctrip.framework.apollo.spring.util.SpringInjector;
+import com.ctrip.framework.apollo.util.ConfigUtil;
+import com.google.common.collect.LinkedListMultimap;
+import com.google.common.collect.Multimap;
 
 /**
  * Spring value processor of field or method which has @Value and xml config placeholders.
@@ -63,7 +66,8 @@ public class SpringValueProcessor extends ApolloProcessor implements BeanFactory
   @Override
   public Object postProcessBeforeInitialization(Object bean, String beanName)
       throws BeansException {
-    if (configUtil.isAutoUpdateInjectedSpringPropertiesEnabled()) {
+    if (configUtil.isAutoUpdateInjectedSpringPropertiesEnabled()
+        && ApolloRefreshUtil.hasRefresh(bean.getClass())) {
       super.postProcessBeforeInitialization(bean, beanName);
       processBeanPropertyValues(bean, beanName);
     }
@@ -84,12 +88,15 @@ public class SpringValueProcessor extends ApolloProcessor implements BeanFactory
       return;
     }
 
+    boolean isRefresh = ApolloRefreshUtil.hasRefresh(bean.getClass(), field);
+    
     for (String key : keys) {
-      SpringValue springValue = new SpringValue(key, value.value(), bean, beanName, field, false);
+      SpringValue springValue = new SpringValue(key, value.value(), bean, beanName, field, false, isRefresh);
       springValueRegistry.register(beanFactory, key, springValue);
       logger.debug("Monitoring {}", springValue);
     }
   }
+
 
   @Override
   protected void processMethod(Object bean, String beanName, Method method) {
@@ -113,9 +120,10 @@ public class SpringValueProcessor extends ApolloProcessor implements BeanFactory
     if (keys.isEmpty()) {
       return;
     }
-
+    
+    boolean isRefresh = ApolloRefreshUtil.hasRefresh(bean.getClass(), method);
     for (String key : keys) {
-      SpringValue springValue = new SpringValue(key, value.value(), bean, beanName, method, false);
+      SpringValue springValue = new SpringValue(key, value.value(), bean, beanName, method, false, isRefresh);
       springValueRegistry.register(beanFactory, key, springValue);
       logger.info("Monitoring {}", springValue);
     }
@@ -137,8 +145,9 @@ public class SpringValueProcessor extends ApolloProcessor implements BeanFactory
         if (method == null) {
           continue;
         }
+        boolean isRefresh = ApolloRefreshUtil.hasRefresh(bean.getClass(), method);
         SpringValue springValue = new SpringValue(definition.getKey(), definition.getPlaceholder(),
-            bean, beanName, method, false);
+            bean, beanName, method, false, isRefresh);
         springValueRegistry.register(beanFactory, definition.getKey(), springValue);
         logger.debug("Monitoring {}", springValue);
       } catch (Throwable ex) {
