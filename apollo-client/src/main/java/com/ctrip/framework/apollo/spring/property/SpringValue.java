@@ -5,6 +5,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
+
 import org.springframework.core.MethodParameter;
 
 /**
@@ -24,6 +25,8 @@ public class SpringValue {
   private Class<?> targetType;
   private Type genericType;
   private boolean isJson;
+  //it will refresh by default
+  private boolean isefresh = true;
 
   public SpringValue(String key, String placeholder, Object bean, String beanName, Field field, boolean isJson) {
     this.beanRef = new WeakReference<>(bean);
@@ -47,6 +50,35 @@ public class SpringValue {
     Class<?>[] paramTps = method.getParameterTypes();
     this.targetType = paramTps[0];
     this.isJson = isJson;
+    if(isJson){
+      this.genericType = method.getGenericParameterTypes()[0];
+    }
+  }
+  
+  public SpringValue(String key, String placeholder, Object bean, String beanName, Field field, boolean isJson, boolean isefresh) {
+    this.beanRef = new WeakReference<>(bean);
+    this.beanName = beanName;
+    this.field = field;
+    this.key = key;
+    this.placeholder = placeholder;
+    this.targetType = field.getType();
+    this.isJson = isJson;
+    this.isefresh = isefresh;
+    if(isJson){
+      this.genericType = field.getGenericType();
+    }
+  }
+  
+  public SpringValue(String key, String placeholder, Object bean, String beanName, Method method, boolean isJson, boolean isefresh) {
+    this.beanRef = new WeakReference<>(bean);
+    this.beanName = beanName;
+    this.methodParameter = new MethodParameter(method, 0);
+    this.key = key;
+    this.placeholder = placeholder;
+    Class<?>[] paramTps = method.getParameterTypes();
+    this.targetType = paramTps[0];
+    this.isJson = isJson;
+    this.isefresh = isefresh;
     if(isJson){
       this.genericType = method.getGenericParameterTypes()[0];
     }
@@ -114,6 +146,10 @@ public class SpringValue {
 
   boolean isTargetBeanValid() {
     return beanRef.get() != null;
+  }
+  
+  public boolean isIsefresh() {
+    return isefresh;
   }
 
   @Override

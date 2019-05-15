@@ -1,5 +1,6 @@
 package com.ctrip.framework.apollo.tracer.internals;
 
+import com.ctrip.framework.apollo.core.spi.Ordered;
 import com.ctrip.framework.apollo.tracer.spi.MessageProducer;
 import com.ctrip.framework.apollo.tracer.spi.MessageProducerManager;
 
@@ -12,5 +13,10 @@ public class NullMessageProducerManager implements MessageProducerManager {
   @Override
   public MessageProducer getProducer() {
     return producer;
+  }
+
+  @Override
+  public int getOrder() {
+    return Ordered.LOWEST_PRECEDENCE;
   }
 }

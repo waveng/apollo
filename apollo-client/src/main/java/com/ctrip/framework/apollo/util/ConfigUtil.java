@@ -1,24 +1,27 @@
 package com.ctrip.framework.apollo.util;
 
-import com.google.common.util.concurrent.RateLimiter;
 import java.io.File;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.ctrip.framework.apollo.ClientConfigConsts;
 import com.ctrip.framework.apollo.core.ConfigConsts;
 import com.ctrip.framework.apollo.core.MetaDomainConsts;
 import com.ctrip.framework.apollo.core.enums.Env;
 import com.ctrip.framework.apollo.core.enums.EnvUtils;
 import com.ctrip.framework.foundation.Foundation;
 import com.google.common.base.Strings;
+import com.google.common.util.concurrent.RateLimiter;
 
 /**
  * @author Jason Song(song_s@ctrip.com)
  */
 public class ConfigUtil {
   private static final Logger logger = LoggerFactory.getLogger(ConfigUtil.class);
+  private static final String WINDOWS_OPT_DATA = "C:\\opt\\data\\%s";
+  private static final String OPT_DATA = "/opt/data/%s";
   private int refreshInterval = 5;
   private TimeUnit refreshIntervalTimeUnit = TimeUnit.MINUTES;
   private int connectTimeout = 1000; //1 second
@@ -117,7 +120,7 @@ public class ConfigUtil {
   }
 
   private void initConnectTimeout() {
-    String customizedConnectTimeout = System.getProperty("apollo.connectTimeout");
+    String customizedConnectTimeout = System.getProperty(ClientConfigConsts.APOLLO_CONNECT_TIMEOUT);
     if (!Strings.isNullOrEmpty(customizedConnectTimeout)) {
       try {
         connectTimeout = Integer.parseInt(customizedConnectTimeout);
@@ -132,7 +135,7 @@ public class ConfigUtil {
   }
 
   private void initReadTimeout() {
-    String customizedReadTimeout = System.getProperty("apollo.readTimeout");
+    String customizedReadTimeout = System.getProperty(ClientConfigConsts.APOLLO_READ_TIMEOUT);
     if (!Strings.isNullOrEmpty(customizedReadTimeout)) {
       try {
         readTimeout = Integer.parseInt(customizedReadTimeout);
@@ -147,7 +150,7 @@ public class ConfigUtil {
   }
 
   private void initRefreshInterval() {
-    String customizedRefreshInterval = System.getProperty("apollo.refreshInterval");
+    String customizedRefreshInterval = System.getProperty(ClientConfigConsts.APOLLO_REFRESH_INTERVAL);
     if (!Strings.isNullOrEmpty(customizedRefreshInterval)) {
       try {
         refreshInterval = Integer.parseInt(customizedRefreshInterval);
@@ -166,7 +169,7 @@ public class ConfigUtil {
   }
 
   private void initQPS() {
-    String customizedLoadConfigQPS = System.getProperty("apollo.loadConfigQPS");
+    String customizedLoadConfigQPS = System.getProperty(ClientConfigConsts.APOLLO_LOAD_CONFIG_QPS);
     if (!Strings.isNullOrEmpty(customizedLoadConfigQPS)) {
       try {
         loadConfigQPS = Integer.parseInt(customizedLoadConfigQPS);
@@ -175,7 +178,7 @@ public class ConfigUtil {
       }
     }
 
-    String customizedLongPollQPS = System.getProperty("apollo.longPollQPS");
+    String customizedLongPollQPS = System.getProperty(ClientConfigConsts.APOLLO_LONG_POLL_QPS);
     if (!Strings.isNullOrEmpty(customizedLongPollQPS)) {
       try {
         longPollQPS = Integer.parseInt(customizedLongPollQPS);
@@ -208,20 +211,20 @@ public class ConfigUtil {
       return cacheRoot + File.separator + getAppId();
     }
 
-    cacheRoot = isOSWindows() ? "C:\\opt\\data\\%s" : "/opt/data/%s";
+    cacheRoot = isOSWindows() ? WINDOWS_OPT_DATA : OPT_DATA;
     return String.format(cacheRoot, getAppId());
   }
 
   private String getCustomizedCacheRoot() {
     // 1. Get from System Property
-    String cacheRoot = System.getProperty("apollo.cacheDir");
+    String cacheRoot = System.getProperty(ClientConfigConsts.APOLLO_CACHE_DIR);
     if (Strings.isNullOrEmpty(cacheRoot)) {
       // 2. Get from OS environment variable
       cacheRoot = System.getenv("APOLLO_CACHEDIR");
     }
     if (Strings.isNullOrEmpty(cacheRoot)) {
       // 3. Get from server.properties
-      cacheRoot = Foundation.server().getProperty("apollo.cacheDir", null);
+      cacheRoot = Foundation.server().getProperty(ClientConfigConsts.APOLLO_CACHE_DIR, null);
     }
 
     return cacheRoot;
@@ -245,7 +248,7 @@ public class ConfigUtil {
   }
 
   private void initMaxConfigCacheSize() {
-    String customizedConfigCacheSize = System.getProperty("apollo.configCacheSize");
+    String customizedConfigCacheSize = System.getProperty(ClientConfigConsts.APOLLO_CONFIG_CACHE_SIZE);
     if (!Strings.isNullOrEmpty(customizedConfigCacheSize)) {
       try {
         maxConfigCacheSize = Long.valueOf(customizedConfigCacheSize);
@@ -268,7 +271,7 @@ public class ConfigUtil {
   }
 
   private void initLongPollingInitialDelayInMills() {
-    String customizedLongPollingInitialDelay = System.getProperty("apollo.longPollingInitialDelayInMills");
+    String customizedLongPollingInitialDelay = System.getProperty(ClientConfigConsts.APOLLO_LONG_POLLING_INITIAL_DELAY_IN_MILLS);
     if (!Strings.isNullOrEmpty(customizedLongPollingInitialDelay)) {
       try {
         longPollingInitialDelayInMills = Long.valueOf(customizedLongPollingInitialDelay);
@@ -284,10 +287,10 @@ public class ConfigUtil {
 
   private void initAutoUpdateInjectedSpringProperties() {
     // 1. Get from System Property
-    String enableAutoUpdate = System.getProperty("apollo.autoUpdateInjectedSpringProperties");
+    String enableAutoUpdate = System.getProperty(ClientConfigConsts.APOLLO_AUTO_UPDATE_INJECTED_SPRING_PROPERTIE);
     if (Strings.isNullOrEmpty(enableAutoUpdate)) {
       // 2. Get from app.properties
-      enableAutoUpdate = Foundation.app().getProperty("apollo.autoUpdateInjectedSpringProperties", null);
+      enableAutoUpdate = Foundation.app().getProperty(ClientConfigConsts.APOLLO_AUTO_UPDATE_INJECTED_SPRING_PROPERTIE, null);
     }
     if (!Strings.isNullOrEmpty(enableAutoUpdate)) {
       autoUpdateInjectedSpringProperties = Boolean.parseBoolean(enableAutoUpdate.trim());

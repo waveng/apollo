@@ -1,18 +1,18 @@
 package com.ctrip.framework.apollo.spring.property;
 
-import com.ctrip.framework.apollo.ConfigChangeListener;
-import com.ctrip.framework.apollo.enums.PropertyChangeType;
-import com.ctrip.framework.apollo.model.ConfigChange;
-import com.ctrip.framework.apollo.model.ConfigChangeEvent;
-import com.ctrip.framework.apollo.spring.util.SpringInjector;
-import com.google.gson.Gson;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.Collection;
-import java.util.Objects;
 import java.util.Set;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.ctrip.framework.apollo.ConfigChangeListener;
+import com.ctrip.framework.apollo.model.ConfigChangeEvent;
+import com.ctrip.framework.apollo.spring.util.SpringInjector;
+import com.google.gson.Gson;
+
 import org.springframework.beans.TypeConverter;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
@@ -58,7 +58,9 @@ public class AutoUpdateConfigChangeListener implements ConfigChangeListener{
 
       // 2. update the value
       for (SpringValue val : targetValues) {
-        updateSpringValue(val);
+        if(val.isIsefresh()) {
+          updateSpringValue(val);
+        }
       }
     }
   }

@@ -64,4 +64,9 @@ public class DefaultInjector implements Injector {
       bind(YamlParser.class).in(Singleton.class);
     }
   }
+
+  @Override
+  public int getOrder() {
+    return 0;
+  }
 }

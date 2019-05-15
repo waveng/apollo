@@ -1,17 +1,10 @@
 package com.ctrip.framework.apollo.spring.annotation;
 
-import com.ctrip.framework.apollo.build.ApolloInjector;
-import com.ctrip.framework.apollo.spring.property.PlaceholderHelper;
-import com.ctrip.framework.apollo.spring.property.SpringValue;
-import com.ctrip.framework.apollo.spring.property.SpringValueRegistry;
-import com.ctrip.framework.apollo.spring.util.SpringInjector;
-import com.ctrip.framework.apollo.util.ConfigUtil;
-import com.google.common.base.Preconditions;
-import com.google.gson.Gson;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.Set;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -20,6 +13,15 @@ import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.util.ReflectionUtils;
+
+import com.ctrip.framework.apollo.build.ApolloInjector;
+import com.ctrip.framework.apollo.spring.property.PlaceholderHelper;
+import com.ctrip.framework.apollo.spring.property.SpringValue;
+import com.ctrip.framework.apollo.spring.property.SpringValueRegistry;
+import com.ctrip.framework.apollo.spring.util.SpringInjector;
+import com.ctrip.framework.apollo.util.ConfigUtil;
+import com.google.common.base.Preconditions;
+import com.google.gson.Gson;
 
 /**
  * Create by zhangzheng on 2018/2/6
@@ -40,6 +42,15 @@ public class ApolloJsonValueProcessor extends ApolloProcessor implements BeanFac
     springValueRegistry = SpringInjector.getInstance(SpringValueRegistry.class);
   }
 
+  @Override
+  public Object postProcessBeforeInitialization(Object bean, String beanName)
+      throws BeansException {
+    if (configUtil.isAutoUpdateInjectedSpringPropertiesEnabled()) {
+      super.postProcessBeforeInitialization(bean, beanName);
+    }
+    return bean;
+  }
+  
   @Override
   protected void processField(Object bean, String beanName, Field field) {
     ApolloJsonValue apolloJsonValue = AnnotationUtils.getAnnotation(field, ApolloJsonValue.class);
@@ -96,7 +107,7 @@ public class ApolloJsonValueProcessor extends ApolloProcessor implements BeanFac
     method.setAccessible(true);
     ReflectionUtils.invokeMethod(method, bean, parseJsonValue((String)propertyValue, types[0]));
     method.setAccessible(accessible);
-
+    
     if (configUtil.isAutoUpdateInjectedSpringPropertiesEnabled()) {
       Set<String> keys = placeholderHelper.extractPlaceholderKeys(placeHolder);
       for (String key : keys) {

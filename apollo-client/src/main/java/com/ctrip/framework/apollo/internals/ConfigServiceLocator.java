@@ -1,7 +1,5 @@
 package com.ctrip.framework.apollo.internals;
 
-import com.ctrip.framework.apollo.core.ServiceNameConsts;
-import com.ctrip.framework.foundation.Foundation;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
@@ -12,7 +10,9 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.ctrip.framework.apollo.ClientConfigConsts;
 import com.ctrip.framework.apollo.build.ApolloInjector;
+import com.ctrip.framework.apollo.core.ServiceNameConsts;
 import com.ctrip.framework.apollo.core.dto.ServiceDTO;
 import com.ctrip.framework.apollo.core.utils.ApolloThreadFactory;
 import com.ctrip.framework.apollo.exceptions.ApolloConfigException;
@@ -23,6 +23,7 @@ import com.ctrip.framework.apollo.util.ExceptionUtil;
 import com.ctrip.framework.apollo.util.http.HttpRequest;
 import com.ctrip.framework.apollo.util.http.HttpResponse;
 import com.ctrip.framework.apollo.util.http.HttpUtil;
+import com.ctrip.framework.foundation.Foundation;
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
@@ -72,14 +73,14 @@ public class ConfigServiceLocator {
 
   private List<ServiceDTO> getCustomizedConfigService() {
     // 1. Get from System Property
-    String configServices = System.getProperty("apollo.configService");
+    String configServices = System.getProperty(ClientConfigConsts.APOLLO_CONFIG_SERVICE);
     if (Strings.isNullOrEmpty(configServices)) {
       // 2. Get from OS environment variable
       configServices = System.getenv("APOLLO_CONFIGSERVICE");
     }
     if (Strings.isNullOrEmpty(configServices)) {
       // 3. Get from server.properties
-      configServices = Foundation.server().getProperty("apollo.configService", null);
+      configServices = Foundation.server().getProperty(ClientConfigConsts.APOLLO_CONFIG_SERVICE, null);
     }
 
     if (Strings.isNullOrEmpty(configServices)) {

@@ -17,4 +17,9 @@ public class MockMessageProducerManager implements MessageProducerManager {
   public static void setProducer(MessageProducer producer) {
     s_producer = producer;
   }
+
+  @Override
+  public int getOrder() {
+    return HIGHEST_PRECEDENCE;
+  }
 }

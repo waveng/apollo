@@ -1,9 +1,6 @@
 package com.ctrip.framework.apollo.core;
 
-import com.ctrip.framework.apollo.core.enums.Env;
 import java.util.Collections;
-import java.util.Comparator;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
@@ -14,6 +11,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.ctrip.framework.apollo.core.enums.Env;
 import com.ctrip.framework.apollo.core.spi.MetaServerProvider;
 import com.ctrip.framework.apollo.core.utils.ApolloThreadFactory;
 import com.ctrip.framework.apollo.core.utils.NetUtil;
@@ -108,18 +106,7 @@ public class MetaDomainConsts {
   }
 
   private static List<MetaServerProvider> initMetaServerProviders() {
-    Iterator<MetaServerProvider> metaServerProviderIterator = ServiceBootstrap.loadAll(MetaServerProvider.class);
-
-    List<MetaServerProvider> metaServerProviders = Lists.newArrayList(metaServerProviderIterator);
-
-    Collections.sort(metaServerProviders, new Comparator<MetaServerProvider>() {
-      @Override
-      public int compare(MetaServerProvider o1, MetaServerProvider o2) {
-        // the smaller order has higher priority
-        return Integer.compare(o1.getOrder(), o2.getOrder());
-      }
-    });
-
+    List<MetaServerProvider> metaServerProviders = ServiceBootstrap.loadAll(MetaServerProvider.class, ServiceBootstrap.ASC);
     return metaServerProviders;
   }
 

@@ -42,4 +42,9 @@ public class DefaultNetworkProvider implements NetworkProvider {
   public String toString() {
     return "hostName [" + getHostName() + "] hostIP [" + getHostAddress() + "] (DefaultNetworkProvider)";
   }
+
+  @Override
+  public int getOrder() {
+    return 0;
+  }
 }

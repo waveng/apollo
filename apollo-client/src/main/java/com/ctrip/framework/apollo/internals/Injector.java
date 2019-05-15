@@ -1,9 +1,11 @@
 package com.ctrip.framework.apollo.internals;
 
+import com.ctrip.framework.apollo.core.spi.Ordered;
+
 /**
  * @author Jason Song(song_s@ctrip.com)
  */
-public interface Injector {
+public interface Injector  extends Ordered{
 
   /**
    * Returns the appropriate instance for the given injection type

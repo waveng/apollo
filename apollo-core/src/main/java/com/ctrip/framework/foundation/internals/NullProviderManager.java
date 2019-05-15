@@ -1,5 +1,6 @@
 package com.ctrip.framework.foundation.internals;
 
+import com.ctrip.framework.apollo.core.spi.Ordered;
 import com.ctrip.framework.foundation.internals.provider.NullProvider;
 import com.ctrip.framework.foundation.spi.ProviderManager;
 
@@ -19,5 +20,10 @@ public class NullProviderManager implements ProviderManager {
   @Override
   public String toString() {
     return provider.toString();
+  }
+
+  @Override
+  public int getOrder() {
+    return Ordered.LOWEST_PRECEDENCE;
   }
 }
