@@ -33,6 +33,10 @@
 			<artifactId>apollo-client</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+        <dependency>
+            <groupId>com.ctrip.framework.apollo</groupId>
+            <artifactId>apollo-client-springboot2-extension</artifactId>
+        </dependency>
 		<dependency>
 			<groupId>com.ctrip.framework.apollo</groupId>
 			<artifactId>apollo-client-springboot2-extension</artifactId>
