@@ -570,8 +570,8 @@ public class JavaConfigPlaceholderAutoUpdateTest extends AbstractSpringIntegrati
 
       AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(AppConfig4.class);
 
-    TestJavaConfigBean4 bean4 = context.getBean(TestJavaConfigBean4.class);
-    TestJavaConfigBean5 bean5 = context.getBean(TestJavaConfigBean5.class);
+    TestRefreshBean4 bean4 = context.getBean(TestRefreshBean4.class);
+    TestRefreshBean5 bean5 = context.getBean(TestRefreshBean5.class);
 
     assertEquals(initialTimeout, bean4.getTimeout());
     assertEquals(initialBatch, bean4.getBatch());
@@ -606,9 +606,9 @@ public class JavaConfigPlaceholderAutoUpdateTest extends AbstractSpringIntegrati
 
       AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(AppConfig4.class);
 
-    TestJavaConfigBean6 bean6 = context.getBean(TestJavaConfigBean6.class);
-    TestJavaConfigBean7 bean7 = context.getBean(TestJavaConfigBean7.class);
-    TestJavaConfigBean8 bean8 = context.getBean(TestJavaConfigBean8.class);
+    TestRefreshBean6 bean6 = context.getBean(TestRefreshBean6.class);
+    TestRefreshBean7 bean7 = context.getBean(TestRefreshBean7.class);
+    TestRefreshBean8 bean8 = context.getBean(TestRefreshBean8.class);
 
     assertEquals(initialTimeout, bean6.getTimeout());
     assertEquals(initialBatch, bean6.getBatch());
@@ -651,8 +651,8 @@ public class JavaConfigPlaceholderAutoUpdateTest extends AbstractSpringIntegrati
 
       AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(AppConfig4.class);
 
-    TestJavaConfigBean9 bean9 = context.getBean(TestJavaConfigBean9.class);
-    TestJavaConfigBean10 bean10 = context.getBean(TestJavaConfigBean10.class);
+    TestRefreshBean9 bean9 = context.getBean(TestRefreshBean9.class);
+    TestRefreshBean10 bean10 = context.getBean(TestRefreshBean10.class);
 
     assertEquals(initialTimeout, bean9.getTimeout());
     assertEquals(initialBatch, bean9.getBatch());
@@ -686,11 +686,134 @@ public class JavaConfigPlaceholderAutoUpdateTest extends AbstractSpringIntegrati
   }
   
 
+  
+  @Test
+  public void testAutoRefresEnabledAll() throws Exception {
+      int initialTimeout = 1000;
+      int initialBatch = 2000;
+      int newTimeout = 1001;
+      int newBatch = 2001;
+      String someValidValue = "[{\"a\":\"someString\", \"b\":10}]";
+      
+      String newsomeValidValue = "[{\"a\":\"newsomeString\", \"b\":1000}]";
+      
+      Properties properties = assembleProperties(TIMEOUT_PROPERTY, String.valueOf(initialTimeout), BATCH_PROPERTY,
+          String.valueOf(initialBatch), "jsonProperty", someValidValue);
+
+      SimpleConfig config = prepareConfig(ConfigConsts.NAMESPACE_APPLICATION, properties);
+
+      AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(AppConfig4.class);
+
+      TestRefreshBean11 bean9 = context.getBean(TestRefreshBean11.class);
+
+    assertEquals(initialTimeout, bean9.getTimeout());
+    assertEquals(initialBatch, bean9.getBatch());
+    assertEquals("someString", bean9.getJsonBeanList().get(0).getA());
+    assertEquals(10, bean9.getJsonBeanList().get(0).getB());
+    
+    
+    
+
+    Properties newProperties =
+            assembleProperties(TIMEOUT_PROPERTY, String.valueOf(newTimeout), BATCH_PROPERTY, String.valueOf(newBatch), "jsonProperty", newsomeValidValue);
+
+    config.onRepositoryChange(ConfigConsts.NAMESPACE_APPLICATION, newProperties);
+
+    TimeUnit.MILLISECONDS.sleep(600);
+
+    assertEquals(newTimeout, bean9.getTimeout());
+    assertEquals(newBatch, bean9.getBatch());
+    assertEquals("newsomeString", bean9.getJsonBeanList().get(0).getA());
+    assertEquals(1000, bean9.getJsonBeanList().get(0).getB());
+    
+  }
+  
+  @Test
+  public void testRefreshEnabledAndRefreshFieldDisabled() throws Exception {
+      int initialTimeout = 1000;
+      int initialBatch = 2000;
+      int newTimeout = 1001;
+      int newBatch = 2001;
+      String someValidValue = "[{\"a\":\"someString\", \"b\":10}]";
+      
+      String newsomeValidValue = "[{\"a\":\"newsomeString\", \"b\":1000}]";
+      
+      Properties properties = assembleProperties(TIMEOUT_PROPERTY, String.valueOf(initialTimeout), BATCH_PROPERTY,
+          String.valueOf(initialBatch), "jsonProperty", someValidValue);
+
+      SimpleConfig config = prepareConfig(ConfigConsts.NAMESPACE_APPLICATION, properties);
+
+      AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(AppConfig4.class);
+
+      TestRefreshBean12 bean9 = context.getBean(TestRefreshBean12.class);
+
+    assertEquals(initialTimeout, bean9.getTimeout());
+    assertEquals(initialBatch, bean9.getBatch());
+    assertEquals("someString", bean9.getJsonBeanList().get(0).getA());
+    assertEquals(10, bean9.getJsonBeanList().get(0).getB());
+    
+    
+    
+
+    Properties newProperties =
+            assembleProperties(TIMEOUT_PROPERTY, String.valueOf(newTimeout), BATCH_PROPERTY, String.valueOf(newBatch), "jsonProperty", newsomeValidValue);
+
+    config.onRepositoryChange(ConfigConsts.NAMESPACE_APPLICATION, newProperties);
+
+    TimeUnit.MILLISECONDS.sleep(600);
+
+    assertEquals(newTimeout, bean9.getTimeout());
+    assertEquals(newBatch, bean9.getBatch());
+    assertEquals("newsomeString", bean9.getJsonBeanList().get(0).getA());
+    assertEquals(1000, bean9.getJsonBeanList().get(0).getB());
+    
+  }
+  
+  @Test
+  public void testRefreshDisabledAndRefreshFieldEnabled() throws Exception {
+      int initialTimeout = 1000;
+      int initialBatch = 2000;
+      int newTimeout = 1001;
+      int newBatch = 2001;
+      String someValidValue = "[{\"a\":\"someString\", \"b\":10}]";
+      
+      String newsomeValidValue = "[{\"a\":\"newsomeString\", \"b\":1000}]";
+      
+      Properties properties = assembleProperties(TIMEOUT_PROPERTY, String.valueOf(initialTimeout), BATCH_PROPERTY,
+          String.valueOf(initialBatch), "jsonProperty", someValidValue);
+
+      SimpleConfig config = prepareConfig(ConfigConsts.NAMESPACE_APPLICATION, properties);
+
+      AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(AppConfig4.class);
+
+      TestRefreshBean13 bean9 = context.getBean(TestRefreshBean13.class);
+
+    assertEquals(initialTimeout, bean9.getTimeout());
+    assertEquals(initialBatch, bean9.getBatch());
+    assertEquals("someString", bean9.getJsonBeanList().get(0).getA());
+    assertEquals(10, bean9.getJsonBeanList().get(0).getB());
+    
+    
+
+    Properties newProperties =
+            assembleProperties(TIMEOUT_PROPERTY, String.valueOf(newTimeout), BATCH_PROPERTY, String.valueOf(newBatch), "jsonProperty", newsomeValidValue);
+
+    config.onRepositoryChange(ConfigConsts.NAMESPACE_APPLICATION, newProperties);
+
+    TimeUnit.MILLISECONDS.sleep(600);
+
+    assertEquals(initialTimeout, bean9.getTimeout());
+    assertEquals(initialBatch, bean9.getBatch());
+    assertEquals("someString", bean9.getJsonBeanList().get(0).getA());
+    assertEquals(10, bean9.getJsonBeanList().get(0).getB());
+    
+  }
+  
   @Configuration
   @EnableApolloConfig
   static class AppConfig1 {
     @Bean
-    RefreshEnabledBean testJavaConfigBean() {
+    RefreshEnabledBean TestRefreshBean() {
       return new RefreshEnabledBean();
     }
   }
@@ -699,7 +822,7 @@ public class JavaConfigPlaceholderAutoUpdateTest extends AbstractSpringIntegrati
   @EnableApolloConfig({"application", "FX.apollo"})
   static class AppConfig2 {
     @Bean
-    RefreshEnabledBean testJavaConfigBean() {
+    RefreshEnabledBean TestRefreshBean() {
       return new RefreshEnabledBean();
     }
   }
@@ -715,8 +838,8 @@ public class JavaConfigPlaceholderAutoUpdateTest extends AbstractSpringIntegrati
   @EnableApolloConfig
   static class AppConfig5 {
     @Bean
-    TestJavaConfigBean4 testJavaConfigBean() {
-      return new TestJavaConfigBean4();
+    TestRefreshBean4 TestRefreshBean() {
+      return new TestRefreshBean4();
     }
   }
 
@@ -724,8 +847,8 @@ public class JavaConfigPlaceholderAutoUpdateTest extends AbstractSpringIntegrati
   @EnableApolloConfig
   static class AppConfig6 {
     @Bean
-    TestJavaConfigBean5 testJavaConfigBean() {
-      return new TestJavaConfigBean5();
+    TestRefreshBean5 TestRefreshBean() {
+      return new TestRefreshBean5();
     }
   }
 
@@ -734,7 +857,7 @@ public class JavaConfigPlaceholderAutoUpdateTest extends AbstractSpringIntegrati
   @ImportResource("spring/XmlConfigPlaceholderTest1.xml")
   static class AppConfig8 {
     @Bean
-    RefreshEnabledBean testJavaConfigBean() {
+    RefreshEnabledBean TestRefreshBean() {
       return new RefreshEnabledBean();
     }
   }
@@ -745,7 +868,7 @@ public class JavaConfigPlaceholderAutoUpdateTest extends AbstractSpringIntegrati
   static class AppConfig12 {
       
     @Bean
-    RefreshEnabledBean testJavaConfigBean() {
+    RefreshEnabledBean TestRefreshBean() {
       return new RefreshEnabledBean();
     }
   }
@@ -755,7 +878,7 @@ public class JavaConfigPlaceholderAutoUpdateTest extends AbstractSpringIntegrati
   @ImportResource("spring/XmlConfigPlaceholderTest11.xml")
   static class AppConfig13 {
     @Bean
-    RefreshEnabledBean testJavaConfigBean() {
+    RefreshEnabledBean TestRefreshBean() {
       return new RefreshEnabledBean();
     }
   }
@@ -764,7 +887,7 @@ public class JavaConfigPlaceholderAutoUpdateTest extends AbstractSpringIntegrati
   @EnableApolloConfig({"application.yml", "FX.apollo"})
   static class AppConfig14 {
     @Bean
-    RefreshEnabledBean testJavaConfigBean() {
+    RefreshEnabledBean TestRefreshBean() {
       return new RefreshEnabledBean();
     }
   }
@@ -829,12 +952,12 @@ public class JavaConfigPlaceholderAutoUpdateTest extends AbstractSpringIntegrati
    * This case won't get auto updated
    */
   @Component
-  static class TestJavaConfigBean1 {
+  static class TestRefreshBean1 {
     private final int timeout;
     private final int batch;
 
     @Autowired
-    public TestJavaConfigBean1(@RefreshField(AutoRefresh.disabled) @Value("${timeout:100}") int timeout, @Value("${batch:200}") int batch) {
+    public TestRefreshBean1(@RefreshField(AutoRefresh.disabled) @Value("${timeout:100}") int timeout, @Value("${batch:200}") int batch) {
       this.timeout = timeout;
       this.batch = batch;
     }
@@ -852,12 +975,12 @@ public class JavaConfigPlaceholderAutoUpdateTest extends AbstractSpringIntegrati
    * This case won't get auto updated
    */
   @Component
-  static class TestJavaConfigBean2 {
+  static class TestRefreshBean2 {
     private final int timeout;
     private final int batch;
 
     @Autowired
-    public TestJavaConfigBean2(@RefreshField(AutoRefresh.disabled) @Value("${timeout:100}") int timeout, @RefreshField(AutoRefresh.enabled) @Value("${batch:200}") int batch) {
+    public TestRefreshBean2(@RefreshField(AutoRefresh.disabled) @Value("${timeout:100}") int timeout, @RefreshField(AutoRefresh.enabled) @Value("${batch:200}") int batch) {
       this.timeout = timeout;
       this.batch = batch;
     }
@@ -876,12 +999,12 @@ public class JavaConfigPlaceholderAutoUpdateTest extends AbstractSpringIntegrati
    */
   @Component
   @AutoRefresh(AutoRefresh.enabled)
-  static class TestJavaConfigBean3 {
+  static class TestRefreshBean3 {
     private final int timeout;
     private final int batch;
 
     @Autowired
-    public TestJavaConfigBean3(@RefreshField(AutoRefresh.disabled) @Value("${timeout:100}") int timeout, @RefreshField(AutoRefresh.enabled) @Value("${batch:200}") int batch) {
+    public TestRefreshBean3(@RefreshField(AutoRefresh.disabled) @Value("${timeout:100}") int timeout, @RefreshField(AutoRefresh.enabled) @Value("${batch:200}") int batch) {
       this.timeout = timeout;
       this.batch = batch;
     }
@@ -899,7 +1022,7 @@ public class JavaConfigPlaceholderAutoUpdateTest extends AbstractSpringIntegrati
    * This case won't get auto updated
    */
   @Component
-  static class TestJavaConfigBean4 {
+  static class TestRefreshBean4 {
 
       @RefreshField(AutoRefresh.disabled)
       @Value("${timeout}")
@@ -920,7 +1043,7 @@ public class JavaConfigPlaceholderAutoUpdateTest extends AbstractSpringIntegrati
     }
   }
   @Component
-  static class TestJavaConfigBean5 {
+  static class TestRefreshBean5 {
 
       @RefreshField(AutoRefresh.disabled)
     @Value("${timeout}")
@@ -944,7 +1067,7 @@ public class JavaConfigPlaceholderAutoUpdateTest extends AbstractSpringIntegrati
   }
   @Component
   @AutoRefresh(AutoRefresh.disabled)
-  static class TestJavaConfigBean6 {
+  static class TestRefreshBean6 {
 
       @RefreshField(AutoRefresh.disabled)
     @Value("${timeout}")
@@ -968,7 +1091,7 @@ public class JavaConfigPlaceholderAutoUpdateTest extends AbstractSpringIntegrati
   }
   @Component
   @AutoRefresh(AutoRefresh.disabled)
-  static class TestJavaConfigBean7 {
+  static class TestRefreshBean7 {
 
     @Value("${timeout}")
     private int timeout;
@@ -991,7 +1114,7 @@ public class JavaConfigPlaceholderAutoUpdateTest extends AbstractSpringIntegrati
   }
   @Component
   @AutoRefresh(AutoRefresh.disabled)
-  static class TestJavaConfigBean8 {
+  static class TestRefreshBean8 {
 
     @Value("${timeout}")
     private int timeout;
@@ -1013,7 +1136,7 @@ public class JavaConfigPlaceholderAutoUpdateTest extends AbstractSpringIntegrati
   }
   @Component
   @AutoRefresh(AutoRefresh.enabled)
-  static class TestJavaConfigBean9 {
+  static class TestRefreshBean9 {
 
       @RefreshField(AutoRefresh.disabled)
     @Value("${timeout}")
@@ -1044,7 +1167,7 @@ public class JavaConfigPlaceholderAutoUpdateTest extends AbstractSpringIntegrati
   
   @Component
   @AutoRefresh(AutoRefresh.enabled)
-  static class TestJavaConfigBean10 {
+  static class TestRefreshBean10 {
       
       @RefreshField(AutoRefresh.disabled)
       @Value("${timeout}")
@@ -1076,7 +1199,104 @@ public class JavaConfigPlaceholderAutoUpdateTest extends AbstractSpringIntegrati
       
   }
   
+  @Component
+  @AutoRefresh(AutoRefresh.enabled)
+  static class TestRefreshBean11 {
+      
+      @Value("${timeout}")
+      private int timeout;
+      
+      private int batch;
+      
+      @ApolloJsonValue("${jsonProperty:}")
+      private List<JsonBean> jsonBeanList;
+      
+      @Value("${batch}")
+      public void setBatch(int batch) {
+          this.batch = batch;
+      }
+      
+      public int getTimeout() {
+          return timeout;
+      }
+      
+      public int getBatch() {
+          return batch;
+      }
+
+    public List<JsonBean> getJsonBeanList() {
+        return jsonBeanList;
+    }
+      
+  }
  
+  @Component
+  @RefreshEnabled
+  static class TestRefreshBean12 {
+      
+      @RefreshField(AutoRefresh.disabled)
+      @Value("${timeout}")
+      private int timeout;
+      
+      private int batch;
+      
+      @RefreshField(AutoRefresh.disabled)
+      @ApolloJsonValue("${jsonProperty:}")
+      private List<JsonBean> jsonBeanList;
+      
+      @RefreshField(AutoRefresh.disabled)
+      @Value("${batch}")
+      public void setBatch(int batch) {
+          this.batch = batch;
+      }
+      
+      public int getTimeout() {
+          return timeout;
+      }
+      
+      public int getBatch() {
+          return batch;
+      }
+
+    public List<JsonBean> getJsonBeanList() {
+        return jsonBeanList;
+    }
+      
+  }
+  
+  @Component
+  @RefreshDisabled
+  static class TestRefreshBean13 {
+      
+      @RefreshField(AutoRefresh.enabled)
+      @Value("${timeout}")
+      private int timeout;
+      
+      private int batch;
+      
+      @RefreshField(AutoRefresh.enabled)
+      @ApolloJsonValue("${jsonProperty:}")
+      private List<JsonBean> jsonBeanList;
+      
+      @RefreshField(AutoRefresh.enabled)
+      @Value("${batch}")
+      public void setBatch(int batch) {
+          this.batch = batch;
+      }
+      
+      public int getTimeout() {
+          return timeout;
+      }
+      
+      public int getBatch() {
+          return batch;
+      }
+
+    public List<JsonBean> getJsonBeanList() {
+        return jsonBeanList;
+    }
+      
+  }
 
   static class JsonBean {
 

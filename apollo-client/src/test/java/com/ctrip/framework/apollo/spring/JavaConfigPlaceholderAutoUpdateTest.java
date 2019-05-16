@@ -31,7 +31,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.context.annotation.ImportResource;
 import org.springframework.stereotype.Component;
-
+@SuppressWarnings("resource")
 public class JavaConfigPlaceholderAutoUpdateTest extends AbstractSpringIntegrationTest {
 
   private static final String TIMEOUT_PROPERTY = "timeout";
@@ -607,7 +607,8 @@ public class JavaConfigPlaceholderAutoUpdateTest extends AbstractSpringIntegrati
     assertEquals(initialBatch, bean.getBatch());
   }
 
-  @Test
+  
+@Test
   public void testAutoUpdateWithValueInjectedAsConstructorArgs() throws Exception {
     int initialTimeout = 1000;
     int initialBatch = 2000;
